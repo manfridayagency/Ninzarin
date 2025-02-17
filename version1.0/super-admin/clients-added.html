@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supper Admin Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <style>
+        :root {
+            --primary-purple: #8b5cf6;
+            --primary-purple-dark: #7c3aed;
+            --primary-purple-light: #a78bfa;
+            --sidebar-bg: #2e1065;
+            --sidebar-hover: #4c1d95;
+        }
+
+        /* Previous base styles remain the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: white;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: padding-left 0.3s ease;
+            height: 74px;
+        }
+
+        .company-logo {
+            width: 240px;
+            height: 74px;
+            background-color: var(--primary-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin: 0;
+            transition: width 0.3s ease;
+        }
+
+        .company-logo.sidebar-collapsed {
+            width: 60px;
+        }
+
+        .main-container {
+            display: flex;
+            margin-top: 74px;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: var(--sidebar-bg);
+            color: white;
+            padding: 2rem 1rem;
+            position: fixed;
+            height: 100%;
+            left: 0;
+            top: 74px;
+            transition: width 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 60px;
+            padding: 2rem 0.5rem;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: var(--sidebar-hover);
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--primary-purple);
+        }
+
+        .sidebar.collapsed .sidebar-toggle {
+            right: 10px;
+        }
+
+        .menu-item {
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+            
+        }
+
+        .menu-item:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        .menu-item.active {
+            background-color: var(--primary-purple);
+        }
+
+        .sidebar.collapsed .menu-item {
+            padding: 0.75rem;
+            justify-content: center;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            background-color: var(--primary-purple-light);
+            color: white;
+        }
+
+        .view-btn.active {
+            background-color: var(--primary-purple);
+            color: white;
+        }
+
+        /* Previous grid and list view styles remain the same */
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .client-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .client-card:hover {
+            border-color: var(--primary-purple-light);
+            transform: translateY(-4px);
+        }
+
+        /* Rest of the styles remain the same */
+        .client-logo {
+            width: 100%;
+            height: 100px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #6b7280;
+        }
+
+        .list-view .client-card {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .list-view .client-logo {
+            width: 100px;
+            margin-bottom: 0;
+        }
+
+        .client-info h3 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .client-info p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        /* Previous layout styles remain the same */
+        .content-area {
+            flex: 1;
+            margin-left: 240px;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content-area.sidebar-collapsed {
+            margin-left: 60px;
+        }
+
+        .view-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        /* Add New Button Container */
+.add-new-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+    position: relative;
+    top: -64px;
+}
+
+/* Add New Button */
+.add-new-btn {
+    background-color: var(--primary-purple);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.add-new-btn:hover {
+    background-color: var(--dark-purple);
+}
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+.sidebar-menu li {
+    margin: 0.5rem 0;
+}
+
+    </style>
+</head>
+<!-- Rest of the HTML remains the same -->
+<body>
+    <header class="header">
+        <div class="company-logo">COMPANY LOGO</div>
+    </header>
+
+    <div class="main-container">
+        <nav class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="menu-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </li>
+                <li class="menu-item active">
+                    <i class="fas fa-users"></i>
+                    <span>Clients</span>
+                </li>
+                <li class="menu-item active">
+                    <i class="fas fa-reports"></i>
+                    <span>Reports</span>
+                </li>
+                <!-- <li class="menu-item active">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </li> -->
+            </ul>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </nav>
+
+        <div class="content-area">
+            <div class="view-controls">
+                <button class="view-btn active" data-view="grid">
+                    <i class="fas fa-grid-2"></i> Grid View
+                </button>
+                <button class="view-btn" data-view="list">
+                    <i class="fas fa-list"></i> List View
+                </button>
+                
+            </div>
+            <div class="add-new-container">
+                <button class="btn add-new-btn">Add New client</button>
+            </div>
+            
+
+            <main class="clients-container grid-view" id="clientsContainer">
+                <!-- Client cards will be inserted here -->
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Previous JavaScript remains exactly the same
+        const clients = [
+            { name: 'Acme Corp', industry: 'Technology', logo: 'AC' },
+            { name: 'Global Industries', industry: 'Manufacturing', logo: 'GI' },
+            { name: 'Tech Solutions', industry: 'Software', logo: 'TS' },
+            { name: 'Digital Dynamics', industry: 'IT Services', logo: 'DD' },
+            { name: 'Future Systems', industry: 'Technology', logo: 'FS' },
+            { name: 'Innovation Labs', industry: 'Research', logo: 'IL' },
+            { name: 'Smart Solutions', industry: 'Consulting', logo: 'SS' },
+            { name: 'Peak Performance', industry: 'Sports', logo: 'PP' }
+        ];
+
+        function createClientCards() {
+            const container = document.getElementById('clientsContainer');
+            container.innerHTML = '';
+            
+            clients.forEach(client => {
+                const card = document.createElement('div');
+                card.className = 'client-card';
+                card.innerHTML = `
+                    <div class="client-logo">${client.logo}</div>
+                    <div class="client-info">
+                        <h3>${client.name}</h3>
+                        <p>${client.industry}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        const viewButtons = document.querySelectorAll('.view-btn');
+        const container = document.getElementById('clientsContainer');
+
+        viewButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                viewButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                container.className = `clients-container ${button.dataset.view}-view`;
+            });
+        });
+
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.sidebar');
+        const contentArea = document.querySelector('.content-area');
+        const companyLogo = document.querySelector('.company-logo');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            contentArea.classList.toggle('sidebar-collapsed');
+            companyLogo.classList.toggle('sidebar-collapsed');
+            
+            const chevron = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('collapsed')) {
+                chevron.classList.remove('fa-chevron-left');
+                chevron.classList.add('fa-chevron-right');
+            } else {
+                chevron.classList.remove('fa-chevron-right');
+                chevron.classList.add('fa-chevron-left');
+            }
+        });
+
+        createClientCards();
+    </script>
+</body>
+</html>

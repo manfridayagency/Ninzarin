@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Management</title>
+    <style>
+        :root {
+            --primary-purple: #8b5cf6;
+            --dark-purple: #7c3aed;
+            --light-purple: #a78bfa;
+            --sidebar-bg: #2e1065;
+            --sidebar-hover: #4c1d95;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f3ff;
+            margin-top: 74px;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: white;
+            padding: 0 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transition: padding-left 0.3s ease;
+            height: 74px;
+            gap: 1rem;
+        }
+
+        .company-logo,
+        .client-logo {
+            font-weight: bold;
+            color: var(--primary-purple);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+
+        .arrow {
+            font-size: 28px;
+            color: var(--dark-purple);
+            margin: 0 0.5rem;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 74px;
+            bottom: 0;
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: white;
+            padding: 1rem;
+            transition: 0.3s;
+        }
+
+        .sidebar.collapsed {
+            margin-left: -250px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin: 0.5rem 0;
+        }
+
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar-menu a:hover {
+            background-color: var(--sidebar-hover);
+        }
+
+        /* Sub-menu Styles */
+        .menu-header {
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sub-menu {
+            padding-left: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .sub-menu li {
+            margin: 0.25rem 0;
+            list-style: none;
+        }
+
+        .sub-menu a {
+            padding: 0.5rem 1rem !important;
+            font-size: 0.9em;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sub-menu a:hover {
+            background-color: var(--sidebar-hover) !important;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 250px;
+            padding: 2rem;
+            transition: 0.3s;
+        }
+
+        .toggle-btn {
+            background-color: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .toggle-btn:hover {
+            background-color: var(--dark-purple);
+        }
+
+        .card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        /* Collapsed State */
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 0;
+        }
+
+        .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+        .button-container {
+            margin-top: 0;
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto; /* Pushes container to the right */
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.edit-btn {
+    background-color: var(--primary-purple);
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: var(--dark-purple);
+}
+
+.disable-btn {
+    background-color: #dc2626;
+    color: white;
+}
+
+.disable-btn:hover {
+    background-color: #b91c1c;
+}
+/* Add New Button Container */
+.add-new-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+/* Add New Button */
+.add-new-btn {
+    background-color: var(--primary-purple);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.add-new-btn:hover {
+    background-color: var(--dark-purple);
+}
+
+.menu-item {
+    margin-bottom: 0.5rem;
+}
+
+.menu-header {
+    cursor: pointer;
+    position: relative;
+    padding-right: 30px;
+}
+
+.chevron {
+    position: absolute;
+    right: 10px;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.menu-item.collapsed .chevron {
+    transform: rotate(0deg);
+}
+
+.menu-item:not(.collapsed) .chevron {
+    transform: rotate(90deg);
+}
+
+.sub-menu {
+    overflow: hidden;
+    transition: all 0.3s ease;
+    max-height: 1000px; /* Adjust based on content */
+}
+
+.menu-item.collapsed .sub-menu {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+/* Breadcrumb Styles */
+.breadcrumb-container {
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: rgba(139, 92, 246, 0.1);
+    border-radius: 6px;
+    list-style: none;
+    margin: 0;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">";
+    color: #6b7280;
+    padding: 0 0.5rem;
+}
+
+.breadcrumb-item a {
+    color: var(--primary-purple);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--dark-purple);
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: #4c1d95;
+    font-weight: 600;
+}
+/* New styles for the vertical list */
+.level-list {
+            list-style: none;
+            margin-top: 1rem;
+            border-left: 2px solid var(--light-purple);
+            padding-left: 1.5rem;
+        }
+
+        .level-list li {
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            background-color: rgba(139, 92, 246, 0.1);
+            border-radius: 6px;
+            color: var(--sidebar-bg);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .level-list li:hover {
+            background-color: rgba(139, 92, 246, 0.2);
+            transform: translateX(5px);
+        }
+     /* New styles for the horizontal roadmap */
+     .roadmap-list {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            list-style: none;
+            margin-top: 1rem;
+            padding: 1rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .roadmap-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: rgba(139, 92, 246, 0.1);
+            border-radius: 6px;
+            color: var(--sidebar-bg);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .roadmap-item:not(:last-child)::after {
+            content: "→";
+            margin: 0 1rem;
+            color: var(--primary-purple);
+            font-size: 1.25rem;
+            position: absolute;
+            right: -2rem;
+        }
+
+        @media (max-width: 768px) {
+            .roadmap-list {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .roadmap-item:not(:last-child)::after {
+                content: "↓";
+                position: absolute;
+                bottom: -1.5rem;
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
+            }
+        }
+
+        .card-header-main p{
+            padding: 0.5rem 0;
+        }
+
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="company-logo">COMPANY LOGO</div>
+        <span class="arrow">→</span>
+        <div class="client-logo">CLIENT LOGO</div>
+        <button class="toggle-btn" onclick="toggleSidebar()">Go Back</button>
+    </header>
+
+    <nav class="sidebar" id="sidebar">
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <div class="menu-header" onclick="toggleMenu(this)">
+                    Home
+                </div>
+                <!-- <ul class="sub-menu">
+                    <li><a href="career-prog.html">Career Progression</a></li>
+                    <li><a href="#">Career RoadMap</a></li>
+                </ul> -->
+            </li>
+            <!-- Career Framework Section -->
+            <li class="menu-item">
+                <div class="menu-header" onclick="toggleMenu(this)">
+                    Career Framework
+                    <!-- <span class="chevron">▶</span> -->
+                </div>
+                <!-- <ul class="sub-menu">
+                    <li><a href="career-prog.html">Career Progression</a></li>
+                    <li><a href="#">Career RoadMap</a></li>
+                </ul> -->
+            </li>
+    
+            <!-- Inventory Section -->
+            <li class="menu-item">
+                <div class="menu-header" onclick="toggleMenu(this)">
+                    Inventory
+                    <span class="chevron">▶</span>
+                </div>
+                <!-- <ul class="sub-menu">
+                    <li><a href="#">Functions</a></li>
+                    <li><a href="#">Level</a></li>
+                    <li><a href="#">Job Role/Vertical</a></li>
+                    <li><a href="#">Skill Competency</a></li>
+                    <li><a href="#">Sub-Skill Competency</a></li>
+                    <li><a href="#">Displayed Behaviour</a></li>
+                </ul> -->
+            </li>
+            <li class="menu-item">
+                <div class="menu-header" onclick="toggleMenu(this)">
+                    Users
+                </div>
+                <!-- <ul class="sub-menu">
+                    <li><a href="career-prog.html">Career Progression</a></li>
+                    <li><a href="#">Career RoadMap</a></li>
+                </ul> -->
+            </li>
+        </ul>
+    </nav>
+
+    <main class="main-content" id="mainContent">
+        <div class="breadcrumb-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Client Management</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><a href="#">Home</a></li>
+                </ol>
+            </nav>
+        </div>
+ 
+        <!-- <div class="add-new-container">
+            <button class="btn add-new-btn">Add New</button>
+        </div> -->
+        <div class="card">
+            <div class="card-header-main">
+                <h3>Home Dashboard</h3>
+                <!-- <div class="button-container">
+                    <button class="btn edit-btn">Edit</button>
+                    <button class="btn disable-btn">Disable</button>
+                </div> -->
+                <p> Many reports and analytics data will come here </p>
+            </div>
+            <!-- <ul class="level-list">
+                <li>Entry Lv</li>
+                <li>Mid Lv</li>
+                <li>Senior Lv</li>
+                <li>Beyond Senior</li>
+            </ul> -->
+        </div>
+        </div>
+        <!-- <div class="card">
+            <div class="card-header">
+            <h3>Career RoadMap</h3>
+            <div class="button-container">
+                <button class="btn edit-btn">Edit</button>
+                <button class="btn disable-btn">Disable</button>
+            </div>
+        </div>
+        <ul class="roadmap-list">
+            <li class="roadmap-item">Function</li>
+            <li class="roadmap-item">Level</li>
+            <li class="roadmap-item">Job Vertical</li>
+            <li class="roadmap-item">Skill Competency</li>
+            <li class="roadmap-item">Sub-Skill Competency</li>
+            <li class="roadmap-item">Displayed Behaviour</li>
+        </ul>
+        </div> -->
+    </main>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            sidebar.classList.toggle('collapsed');
+            mainContent.style.marginLeft = sidebar.classList.contains('collapsed') ? '0' : '250px';
+        }
+        function toggleMenu(header) {
+    const menuItem = header.parentElement;
+    menuItem.classList.toggle('collapsed');
+}
+
+// Initialize with collapsed sections if needed
+document.querySelectorAll('.menu-item').forEach(item => {
+    item.classList.add('collapsed'); // Remove this line to start expanded
+});
+    </script>
+</body>
+</html>
